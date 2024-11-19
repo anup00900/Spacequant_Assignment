@@ -1,7 +1,7 @@
 
 # Document Standardization Test Task
 
-This repository contains a solution to the **Document Standardization Test Task**, aimed at recognizing headers in JSON-structured documents using machine learning. The project involves data analysis, feature engineering, and ML model development to classify rows in the document as headers or non-headers.
+This repository contains the solution to the **Document Standardization Test Task**, aimed at identifying header rows in JSON-structured documents using machine learning (ML). The task involves preprocessing data, implementing various ML methods, and evaluating their effectiveness.
 
 ---
 
@@ -19,77 +19,69 @@ This repository contains a solution to the **Document Standardization Test Task*
 
 ## Overview
 
-The task is to:
-- Build a machine learning solution to recognize headers in JSON-formatted documents.
-- Each document has a near-table structure and may span multiple pages.
-- Headers typically define column names, can span multiple rows, and are labeled as `"HEADERS"` in the dataset.
-
-The focus is on presenting a clear, effective ML-based approach rather than providing a production-ready solution.
+The task is to create an ML solution that can automatically recognize header rows in documents formatted as JSON. Each document has a near-table structure with headers defining columns. These headers can span multiple rows, and the training data provides annotated examples where rows are labeled as "HEADERS" or other types.
 
 ---
 
 ## Dataset Structure
 
-The dataset includes:
-- **Training Data:** A single text file with each line representing a document in JSON format. Rows are annotated with their types (e.g., `"HEADERS"` for header rows).
-- **Test Data:** Documents in the same JSON structure, but without row type annotations.
+### Training Data
+- **Format:** JSON-structured text file, with each document on a new line.
+- **Labeling:** Rows labeled with `type`, e.g., `"HEADERS"`.
+- **Example Structure:**
+  ```json
+  [
+    {
+      "values": [
+        {"value": "Header 1"},
+        {"value": "Header 2"}
+      ],
+      "type": "HEADERS"
+    },
+    {
+      "values": [
+        {"value": "Data 1"},
+        {"value": "123.45"}
+      ],
+      "type": "DATA"
+    }
+  ]
+  ```
 
-A typical JSON structure for a document:
-```json
-[
-  {
-    "values": [
-      { "value": "Header 1" },
-      { "value": "Header 2" }
-    ],
-    "type": "HEADERS"
-  },
-  {
-    "values": [
-      { "value": "Data 1" },
-      { "value": "123.45" }
-    ],
-    "type": "DATA"
-  }
-]
-```
+### Test Data
+- Similar JSON format but without `type` annotations. The model needs to predict which rows are headers.
+
 ---
 
 ## Methodology
 
-### 1. Data Analysis and Exploration
-- **Objective:** Understand patterns distinguishing header rows from data rows.
-- **Techniques Used:** 
-  - Analyzed text length, formatting, and patterns in header cells.
-  - Identified multi-row headers and how they align across pages.
+### 1. Data Analysis and Preprocessing
+- **Loading and Parsing:** JSON files were parsed with robust error handling to skip corrupted lines.
+- **Label Extraction:** Extracted header labels based on the `"type": "HEADERS"` annotation.
+- **Transformation:** Transformed JSON rows into concatenated text strings for processing.
 
 ### 2. Feature Engineering
-- Extracted features such as:
-  - Average word length in a row.
-  - Number of numeric vs textual values.
-  - Presence of special formatting (e.g., capitalization).
+- **TF-IDF Vectorization:** Converted text into numerical format to highlight important words.
+- **Feature Selection:** Used Chi-squared tests to retain impactful features, reducing dimensionality.
 
-### 3. Model Selection
-- Tried multiple models for classification, including:
-  - Logistic Regression.
-  - Random Forest.
-  - Gradient Boosting (final choice).
-- Discarded methods based on poor generalization or complexity.
-
-### 4. Training
-- Used the labeled dataset to train the ML model.
-- Applied cross-validation to evaluate model robustness.
-
-### 5. Testing
-- The model predicts header rows for test documents and outputs results in JSON format.
+### 3. Models Explored
+1. **TF-IDF + KMeans Clustering**:
+   - **Approach:** Addressed imbalances with undersampling and oversampling.
+   - **Outcome:** Struggled with high false positives and negatives due to unsupervised nature.
+2. **Random Forest with SMOTE**:
+   - **Approach:** Applied SMOTE for class balance and used Random Forest for robust classification.
+   - **Outcome:** Improved recall but precision issues persisted.
+3. **MiniLM Training**:
+   - **Approach:** Fine-tuned MiniLM with mixed precision to capture contextual nuances.
+   - **Outcome:** Achieved the best performance across all metrics.
 
 ---
 
 ## Prerequisites and Installation
 
 ### System Requirements
-- Python 3.8 or higher
-- 4 GB RAM (minimum)
+- Python 3.8+
+- CUDA-enabled GPU (recommended for transformer models)
 
 ### Installation
 1. Clone the repository:
@@ -113,59 +105,50 @@ A typical JSON structure for a document:
 ## Usage Instructions
 
 1. **Prepare the Dataset**
-   - Place the training dataset (`train.jsonl`) and test dataset (`test.jsonl`) in the `data/` directory.
+   - Place the training and test datasets in the `data/` directory.
 
 2. **Run the Solution**
-   Execute the Jupyter Notebook file to train and test the model:
+   Execute the Jupyter Notebook or Python scripts to preprocess data, train models, and generate results:
    ```bash
    jupyter notebook SPACEQUANT_ASSIGNMENT.ipynb
    ```
-   Alternatively, run the solution script:
-   ```bash
-   python src/solution.py
-   ```
 
 3. **View Results**
-   - Outputs will be saved in the `output/` directory.
-   - The predictions are saved as JSON files, with rows labeled as `"HEADERS"` or `"DATA"`.
-
-4. **Metrics and Logs**
-   - Training logs and evaluation metrics are stored in `logs/`.
+   - Outputs, including predicted labels for test data, are saved in the `output/` directory.
 
 ---
 
 ## Results and Evaluation
 
 ### Metrics
-- **Accuracy:** 92%
-- **Precision:** 90%
-- **Recall:** 88%
-- **F1-Score:** 89%
+- **TF-IDF + KMeans:** High false positives; unsupervised approach not suitable.
+- **Random Forest with SMOTE:** Improved recall but lower precision.
+- **MiniLM:** Best performance with high precision, recall, and F1-score.
 
-### Observations
-- Multi-row headers were challenging due to variability in structure across documents.
-- Numeric-heavy rows occasionally caused misclassification.
+### General Observations
+- MiniLM outperformed traditional methods due to its ability to understand text contextually.
+- KMeans struggled with high-dimensional, sparse text data.
 
 ---
 
 ## Next Steps
 
-1. **Improve Feature Engineering**
-   - Incorporate domain-specific patterns (e.g., header formatting styles).
-   - Use additional features like cell alignment and font size if metadata is available.
+1. **Data Augmentation**
+   - Generate synthetic examples to improve minority class representation.
 
-2. **Model Enhancement**
-   - Experiment with deep learning models (e.g., BERT) for sequence-based header detection.
-   - Introduce transfer learning to improve generalization.
+2. **Advanced Models**
+   - Explore transformers like BERT or T5 for richer contextual embeddings.
 
-3. **Scalability**
-   - Optimize the solution for processing large datasets.
-   - Develop a batch processing system for handling multiple documents efficiently.
+3. **Cross-Validation**
+   - Implement stratified K-fold cross-validation to ensure robust evaluation.
+
+4. **Graph-Based Techniques**
+   - Experiment with Graph Attention Networks to model document structures.
 
 ---
 
 ## Contributions
-If you have suggestions or improvements, feel free to create a pull request or open an issue.
+Suggestions and improvements are welcome! Feel free to open an issue or submit a pull request.
 
 ---
 
