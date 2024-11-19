@@ -1,7 +1,7 @@
 
 # Document Standardization Test Task
 
-This repository contains the solution to the **Document Standardization Test Task**, aimed at identifying header rows in JSON-structured documents using machine learning (ML). The task involves preprocessing data, implementing various ML methods, and evaluating their effectiveness.
+This repository contains the solution to the **Document Standardization Test Task**, aimed at identifying header rows in JSON-structured documents using machine learning (ML). The task involves preprocessing data, implementing various ML methods, and evaluating their effectiveness. For detailed insights into the experiments, methodologies, and rationale behind the solutions, refer to the **Detailed Explanation of the Solutions and Methodologies.pdf** file included in this repository.
 
 ---
 
@@ -49,7 +49,8 @@ The task is to create an ML solution that can automatically recognize header row
   ```
 
 ### Test Data
-- Similar JSON format but without `type` annotations. The model needs to predict which rows are headers.
+- **Format:** Similar JSON structure but without `type` annotations.
+- **Objective:** The model predicts which rows are headers based on patterns learned from the training data.
 
 ---
 
@@ -144,11 +145,6 @@ The task is to create an ML solution that can automatically recognize header row
 
 4. **Graph-Based Techniques**
    - Experiment with Graph Attention Networks to model document structures.
-
----
-
-## Contributions
-Suggestions and improvements are welcome! Feel free to open an issue or submit a pull request.
 
 ---
 
