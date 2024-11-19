@@ -1,0 +1,2 @@
+# Spacequant_Assignment
+DOCUMENT STANDARDIZATION TEST TASK
